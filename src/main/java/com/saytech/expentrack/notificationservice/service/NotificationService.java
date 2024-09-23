@@ -47,4 +47,8 @@ public class NotificationService {
     public Notification getNotificationById(Long id) {
         return notificationRepository.findById(id).orElse(null);
     }
+
+    public void deleteNotification(Long notificationId) {
+        notificationRepository.deleteById(notificationId);
+    }
 }

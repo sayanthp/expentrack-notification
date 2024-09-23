@@ -8,5 +8,8 @@ public class NotificationListener {
     @KafkaListener(topics = "notification-topic", groupId = "notification-group")
     public void listen(String message) {
         System.out.println("Received notification: " + message);
+
+        //todo : send email
+
     }
 }
