@@ -5,8 +5,9 @@ import com.saytech.expentrack.notificationservice.repository.NotificationReposit
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-
+import org.springframework.util.CollectionUtils;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -26,9 +27,6 @@ public class NotificationService {
         notification.setUserId(userId);
         notification.setRead(false);
         notificationRepository.save(notification);
-
-        // Send notification to Kafka topic
-        kafkaTemplate.send(TOPIC, message);
     }
 
     public List<Notification> getNotificationsByUserId(Long userId) {
@@ -50,5 +48,20 @@ public class NotificationService {
 
     public void deleteNotification(Long notificationId) {
         notificationRepository.deleteById(notificationId);
+    }
+
+    public List<Notification> markAllAsRead(Long userId) {
+        List<Notification> notifications = notificationRepository.findByUserIdAndIsRead(userId,false);
+        if (!CollectionUtils.isEmpty(notifications)) {
+            List<Notification> readNotifications = notifications.stream()
+                    .peek(item -> item.setRead(true))
+                    .collect(Collectors.toList());
+            notificationRepository.saveAll(readNotifications);
+        }
+        return notifications;
+    }
+
+    public void deleteAllNotificationsForUser(Long userId) {
+        notificationRepository.deleteByUserId(userId);
     }
 }
